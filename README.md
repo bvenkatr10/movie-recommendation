@@ -121,7 +121,7 @@ We added another markdown file: **FullMillionExecutioninParallel.RMD** which eva
 
 ## Deployed App in AWS
 
-We deployed our app in AWS cloud platform EC2 which runs 2 CPU , 8GBRAM which runs on UBUNTU.
+We deployed our app in AWS cloud platform EC2 X.large which runs 4 CPU , 16GBRAM which runs on UBUNTU.
 
 <a href="http://ec2-3-91-181-227.compute-1.amazonaws.com:3838/movie-recommendation/">View Demo</a>
 
