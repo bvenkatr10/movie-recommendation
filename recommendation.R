@@ -63,7 +63,7 @@ movie_recommendation <- function(ratedMovieIds,ratedMovieIdsRatings) {
   #Convert rating matrix into a sparse matrix
   ratingmatrix_new <- as(ratingmatrix_new, "realRatingMatrix")
   
-  userId = sample(1:670,1)
+  userId = sample(1:6000,1)
   #Create Recommender Model. "UBCF" stands for user-based collaborative filtering
   recommender_model <- Recommender(ratingmatrix_new, method = "UBCF",param=list(method="Cosine",nn=5))
   recommender <- predict(recommender_model, ratingmatrix_new[userId], n=10)
