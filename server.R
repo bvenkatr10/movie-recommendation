@@ -8,24 +8,24 @@ library(data.table)
 library(shinyjs)
 library(ShinyRatingInput)
 
-myurl = "https://liangfgithub.github.io/MovieData/"
-numGenres = 3
+movieUrl = "https://liangfgithub.github.io/MovieData/"
+displayTotalGenres = 5
 
 loadRatingData = function() {
   # use colClasses = 'NULL' to skip columns
-  ratings = read.csv('ratings.dat', 
+  ratings = read.csv('ratings.dat',
                      sep = ':',
-                     colClasses = c('integer', 'NULL'), 
+                     colClasses = c('integer', 'NULL'),
                      header = FALSE)
   colnames(ratings) = c('UserID', 'MovieID', 'Rating', 'Timestamp')
   ratings
 }
 
 #static array for genre list
-genre_list <- c("Select","Action", "Adventure", "Animation", "Childrens", 
+genre_list <- c("Select","Action", "Adventure", "Animation", "Childrens",
                 "Comedy", "Crime","Documentary", "Drama", "Fantasy",
-                "Film.Noir", "Horror", "Musical", "Mystery","Romance",
-                "Sci.Fi", "Thriller", "War", "Western")
+                  "Horror", "Musical", "Mystery","Romance",
+                 "Thriller", "War", "Western")
 
 
 loadMovieData = function() {
@@ -35,16 +35,16 @@ loadMovieData = function() {
   movies = data.frame(movies, stringsAsFactors = FALSE)
   colnames(movies) = c('MovieID', 'Title', 'Genres')
   movies$MovieID = as.integer(movies$MovieID)
-  
+
   # convert accented characters
   movies$Title[73]
   movies$Title = iconv(movies$Title, "latin1", "UTF-8")
   movies$Title[73]
-  
+
   # extract year
   movies$Year = as.numeric(unlist(
     lapply(movies$Title, function(x) substr(x, nchar(x)-4, nchar(x)-1))))
-  
+
   genres = as.data.frame(gsub("'","",movies$Genres), stringsAsFactors=FALSE)
   tmp = as.data.frame(tstrsplit(genres[,1], '[|]',
                                 type.convert=TRUE),
@@ -73,54 +73,56 @@ formatInput <- function(v,a,d){
 shinyServer(function(input, output) {
 
   final_output <- reactiveValues()
-  
+
   observeEvent(
     input$recBtn, {
-   
+
        ratedMovieIds = c()
        ratedMovieIdsRatings = c()
        for(i in randomMovieIds$ids) {
          if(input[[paste0("movieId",i)]] != "") {
            ratedMovieIds = c(ratedMovieIds,paste0("movieId",i))
            ratedMovieIdsRatings = c(ratedMovieIdsRatings,input[[paste0("movieId",i)]])
+           print(strtoi(ratedMovieIdsRatings))
+             # as.numeric(ratedMovieIdsRatings)
          }
-         
-       }
-       final_output$rec_ucbf <- movie_recommendation(ratedMovieIds,ratedMovieIdsRatings)
-    })
-  
-  observeEvent(input$addNew, { 
-    numGenres = length(input_genres_r$InputGenres) + 1
 
-    input_genres_r$InputGenres[[numGenres]] = 
-      selectInput(paste0("input_genre",numGenres), 
-                  paste0("Genre #",numGenres),
+       }
+       final_output$rec_ucbf <- movie_recommendation(ratedMovieIds,strtoi(ratedMovieIdsRatings))
+    })
+
+  observeEvent(input$addNew, {
+    displayTotalGenres = length(input_genres_r$InputGenres) + 1
+
+    input_genres_r$InputGenres[[displayTotalGenres]] =
+      selectInput(paste0("input_genre",displayTotalGenres),
+                  paste0("Genre #",displayTotalGenres),
                   genre_list)
 
   })
-  
+
   observeEvent(input$resetbtn, {
     #session$sendInputMessage("movieRating", list(value = NULL))
     js$reset_1(0)
-    
+
   })
-  
+
   #to display output data
   output$table <- renderTable({
     input$recBtn
     if(!is.null(final_output$rec_ucbf)) {
       return(final_output$rec_ucbf)
-    } 
+    }
   })
-  
+
   #to display output data
   output$table2 <- renderTable({
-    numGenres = length(input_genres_r$InputGenres)
-    if(numGenres == 0) return()
+    displayTotalGenres = length(input_genres_r$InputGenres)
+    if(displayTotalGenres == 0) return()
     getRec = FALSE
     selectedGenres = c()
-    for(i in 1:numGenres) {
-      if( !is.null(input[[paste0("input_genre",i)]]) && 
+    for(i in 1:displayTotalGenres) {
+      if( !is.null(input[[paste0("input_genre",i)]]) &&
         input[[paste0("input_genre",i)]] != "Select" ) {
           getRec = TRUE
           selectedGenres = c(selectedGenres,input[[paste0("input_genre",i)]])
@@ -130,20 +132,20 @@ shinyServer(function(input, output) {
       return (movie_recommendation_popular(selectedGenres))
     return()
   })
-  
+
 
   inputGenres = list(3)
-  for(i in 1:numGenres) {
+  for(i in 1:displayTotalGenres) {
     inputGenres[[i]] = selectInput(paste("input_genre",sep = "",i), paste("Genre #","",i),
                                                   genre_list)
   }
-  
+
   input_genres_r  = reactiveValues( InputGenres = inputGenres)
-  
+
   output$recommenderButton = renderUI({
     wellPanel(
-      actionButton("recBtn","Rate and Get Recommendation"),
-      actionButton("resetbtn", "reset"))
+      actionButton("recBtn","Send My New Ratings and Fetch Recommended Movies"),
+      actionButton("resetbtn", "Reset Movie Ratings"))
   })
   
   output$renderGenres = renderUI( {

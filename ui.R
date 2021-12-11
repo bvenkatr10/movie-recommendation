@@ -10,8 +10,8 @@ jsCode <-"shinyjs.reset_1 = function(params){$('.rating-symbol-foreground').css(
 #static array for genre list
 genre_list <- c("Select","Action", "Adventure", "Animation", "Childrens", 
                 "Comedy", "Crime","Documentary", "Drama", "Fantasy",
-                "Film.Noir", "Horror", "Musical", "Mystery","Romance",
-                "Sci.Fi", "Thriller", "War", "Western")
+                 "Horror", "Musical", "Mystery","Romance",
+                 "Thriller", "War", "Western")
 
 
 
@@ -24,6 +24,7 @@ shinyUI(fluidPage(
       HTML(".shiny-notification {
               height: 100px;
               width: 600px;
+              background: blue;
               position:fixed;
               top: calc(50% - 50px);;
               left: calc(50% - 200px);;
@@ -33,31 +34,32 @@ shinyUI(fluidPage(
     )
   ),
   tabsetPanel( id = "tabs",
-     tabPanel("System-1",wellPanel("Movie Recommendation Engine - System 1"),
-              tags$style("body {background: url(http://www.wallpaperup.com/wallpaper/download/858715) no-repeat center center fixed; 
-                         background-size: cover;   filter:grayscale(100%);}"),
+     tabPanel(h4("Application - Recommender - Genre Based"),
+              wellPanel(style = "background-color: #0000FF; color: #FFFFFF",h3("Movie Recommendation Engine - Genre Based")),
+              tags$style("body {background: url(http://www.wallpaperup.com/wallpaper/download/858715) no-repeat center center fixed;
+                         background-size: cover; filter:grayscale(100%);}"),
               fluidRow(
-                
-                column(3, wellPanel(h4("Select Movie Genres You Like")),
+
+                column(3, wellPanel(h4("Choose Movie Genres You May Like")),
                        #wellPanel(tableOutput("ui4"))
                       uiOutput("renderGenres")
                 ),
-                
+
                 column(9,
-                       wellPanel(h4("Popular Movies with higher Avg Rating for selected Genres!")),
-                       wellPanel(tableOutput("table2") %>% withSpinner(color="#0dc5c1")) 
+                       wellPanel(h4("Popular Movies with Higher Average Rating for Chosen Genres!")),
+                       wellPanel(tableOutput("table2") %>% withSpinner(color="yellow"))
                 )
               )
-     ),        
-               
-    tabPanel("System-2",
-              wellPanel("Movie Recommendation Engine - System 2"),
-              tags$style("body {background: url(http://www.wallpaperup.com/wallpaper/download/858715) no-repeat center center fixed; 
+     ),
+
+    tabPanel(h4("Application - Recommender - Colloborative Filtering"),
+              wellPanel(style = "background-color: #0000FF; color: #FFFFFF",h3("Movie Recommendation Engine - Colloborative Filtering")),
+              tags$style("body {background: url(http://www.wallpaperup.com/wallpaper/download/858715) no-repeat center center fixed;
                          background-size: cover;   filter:grayscale(100%);}"),
 
              fluidRow(
-                
-                column(7, wellPanel(h4("Rate Movies You Like and then Click Button")),
+
+                column(7, wellPanel(h4("Rate Movies You Like and then Click Fetch Recommendations or Click Reset")),
                        uiOutput("recommenderButton"),
                        uiOutput("renderMoviesForRatings")
                        ),
